@@ -1,0 +1,8 @@
+{
+  "editor.formatOnSave": true,
+  "prettier.printWidth": 77,
+  "prettier.eslintIntegration": true,
+  "workbench.iconTheme": "vscode-icons",
+  "editor.tabSize": 2,
+  "workbench.colorTheme": "Palenight Theme"
+}
