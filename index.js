@@ -1,7 +1,6 @@
 const expresss = require('express');
 const http = require('http');
 const bodyParser = require('body-parser');
-// import cors from 'cors';
 const { graphqlExpress } = require('graphql-server-express');
 const { execute, subscribe } = require('graphql');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
@@ -17,44 +16,26 @@ const pubsub = require('./pubsub');
 const PORT = 3000;
 
 const endpoints = [
-  'http://localhost:3001/graphql',
-  'http://localhost:3002/graphql',
+  {
+    httpUrl: 'http://localhost:3001/graphql',
+    wsUrl: 'ws://localhost:3001/subscriptions',
+  },
+  {
+    httpUrl: 'http://localhost:3002/graphql',
+    wsUrl: 'ws://localhost:3002/subscriptions',
+  },
 ];
 
 const app = expresss();
-console.log('expressPlayground', expressPlayground);
-// app.use('*', cors({ origin: 'http://localhost:3000', credentials: true }));
 app.use(cookieParser());
 
 app.use('/voyager', express({ endpointUrl: '/graphql' }));
 
 Promise.all(endpoints.map(ep => getIntrospectSchema(ep))).then(schemas => {
-  const schemaBinding = new Binding({ schema: schemas[0] });
-
-  pubsub.subscribe('USER_CHANGED', message => {
-    console.log('message', message);
-  });
-
   const schema = mergeSchemas({
     schemas: schemas.concat(mainSchema),
-    resolvers: {
-      Subscription: {
-        userChanged: {
-          resolve: (payload, args, context, info) => {
-            console.log('resolve!!!!', payload);
-            // Manipulate and return the new value
-            return payload.userChanged;
-          },
-          subscribe: () => {
-            console.log('subscribe USER_CHANGED');
-            return pubsub.asyncIterator('USER_CHANGED');
-          },
-        },
-      },
-    },
   });
   app.use('/graphql', bodyParser.json(), (req, res, next) => {
-    // debug('req.session.id:', req.session.id);
     return graphqlExpress({
       schema,
     })(req, res, next);

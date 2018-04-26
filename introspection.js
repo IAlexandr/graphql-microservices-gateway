@@ -3,26 +3,43 @@ const {
   makeRemoteExecutableSchema,
   introspectSchema,
 } = require('graphql-tools');
-const { createHttpLink } = require('apollo-link-http');
+const { split } = require('apollo-link');
+const { createHttpLink, HttpLink } = require('apollo-link-http');
+const { WebSocketLink } = require('apollo-link-ws');
+const { SubscriptionClient } = require('subscriptions-transport-ws');
+const { getMainDefinition } = require('apollo-utilities');
+const ws = require('ws');
 
 module.exports = {
-  getIntrospectSchema: async url => {
-    // Create a link to a GraphQL instance by passing fetch instance and url
-    const makeDatabaseServiceLink = () =>
-      createHttpLink({
-        uri: url,
-        fetch,
-      });
-
-    // Fetch our schema
-    const databaseServiceSchemaDefinition = await introspectSchema(
-      makeDatabaseServiceLink()
+  getIntrospectSchema: async ds => {
+    const httpLink = createHttpLink({
+      uri: ds.httpUrl,
+      fetch,
+    });
+    const client = new SubscriptionClient(
+      ds.wsUrl,
+      {
+        reconnect: true,
+      },
+      ws
+    );
+    const wsLink = new WebSocketLink(client);
+    const link = split(
+      // split based on operation type
+      ({ query }) => {
+        const { kind, operation } = getMainDefinition(query);
+        return (
+          kind === 'OperationDefinition' && operation === 'subscription'
+        );
+      },
+      wsLink,
+      httpLink
     );
 
-    // make an executable schema
+    const schema = await introspectSchema(httpLink);
     return makeRemoteExecutableSchema({
-      schema: databaseServiceSchemaDefinition,
-      link: makeDatabaseServiceLink(),
+      schema,
+      link,
     });
   },
 };
