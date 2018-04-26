@@ -34,6 +34,7 @@ const resolvers = {
   Subscription: {
     groupChanged: {
       subscribe: () => {
+        console.log('groupChanged subscribe!');
         return pubsub.asyncIterator('GROUP_CHANGED');
       },
     },
