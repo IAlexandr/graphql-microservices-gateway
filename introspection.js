@@ -12,34 +12,37 @@ const ws = require('ws');
 
 module.exports = {
   getIntrospectSchema: async ds => {
-    const httpLink = createHttpLink({
-      uri: ds.httpUrl,
-      fetch,
-    });
-    const client = new SubscriptionClient(
-      ds.wsUrl,
-      {
-        reconnect: true,
-      },
-      ws
-    );
-    const wsLink = new WebSocketLink(client);
-    const link = split(
-      // split based on operation type
-      ({ query }) => {
-        const { kind, operation } = getMainDefinition(query);
-        return (
-          kind === 'OperationDefinition' && operation === 'subscription'
-        );
-      },
-      wsLink,
-      httpLink
-    );
-
-    const schema = await introspectSchema(httpLink);
-    return makeRemoteExecutableSchema({
-      schema,
-      link,
-    });
+    try {
+      const httpLink = createHttpLink({
+        uri: ds.httpUrl,
+        fetch,
+      });
+      const client = new SubscriptionClient(
+        ds.wsUrl,
+        {
+          reconnect: true,
+        },
+        ws
+      );
+      const wsLink = new WebSocketLink(client);
+      const link = split(
+        // split based on operation type
+        ({ query }) => {
+          const { kind, operation } = getMainDefinition(query);
+          return (
+            kind === 'OperationDefinition' && operation === 'subscription'
+          );
+        },
+        wsLink,
+        httpLink
+      );
+      const schema = await introspectSchema(httpLink);
+      return makeRemoteExecutableSchema({
+        schema,
+        link,
+      });
+    } catch (e) {
+      console.log('error', e.message);
+    }
   },
 };
