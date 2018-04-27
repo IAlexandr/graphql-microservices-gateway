@@ -1,4 +1,6 @@
 import { RedisPubSub } from 'graphql-redis-subscriptions';
+import debug from './debug';
+const log = debug('pubsub');
 
 const options = {
   port: 32768,
@@ -9,10 +11,10 @@ const options = {
 };
 
 const connceted = () => {
-  console.log('Redis connected. Connection port', options.port);
+  log('Redis connected. Connection port', options.port);
 };
 const error = err => {
-  console.log('Redis connection error');
+  log('Redis connection error');
 };
 
 const pubsub = new RedisPubSub({
