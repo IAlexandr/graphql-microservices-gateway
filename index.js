@@ -11,7 +11,6 @@ const path = require('path');
 const { mergeSchemas } = require('graphql-tools');
 const { getIntrospectSchema } = require('./introspection');
 const mainSchema = require('./schema');
-const { Binding } = require('graphql-binding');
 const pubsub = require('./pubsub');
 const PORT = 3000;
 
