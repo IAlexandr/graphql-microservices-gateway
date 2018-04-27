@@ -1,5 +1,5 @@
 {
-  "name": "graphql-microservices-schema-stitching",
+  "name": "graphql-microservices-gateway",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
