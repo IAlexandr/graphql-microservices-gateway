@@ -1,17 +1,17 @@
-const expresss = require('express');
-const http = require('http');
-const bodyParser = require('body-parser');
-const { graphqlExpress } = require('graphql-server-express');
-const { execute, subscribe } = require('graphql');
-const { SubscriptionServer } = require('subscriptions-transport-ws');
-const expressPlayground = require('graphql-playground-middleware-express');
-const cookieParser = require('cookie-parser');
-const { express } = require('graphql-voyager/middleware');
-const path = require('path');
-const { mergeSchemas } = require('graphql-tools');
-const { getIntrospectSchema } = require('./introspection');
-const mainSchema = require('./schema');
-const pubsub = require('./pubsub');
+import expresss from 'express';
+import http from 'http';
+import bodyParser from 'body-parser';
+import { graphqlExpress } from 'graphql-server-express';
+import { execute, subscribe } from 'graphql';
+import { SubscriptionServer } from 'subscriptions-transport-ws';
+import expressPlayground from 'graphql-playground-middleware-express';
+import cookieParser from 'cookie-parser';
+import { express } from 'graphql-voyager/middleware';
+import path from 'path';
+import { mergeSchemas } from 'graphql-tools';
+import { getIntrospectSchema } from './introspection';
+import mainSchema from './schema';
+
 const PORT = 3000;
 
 const endpoints = [
@@ -41,7 +41,7 @@ Promise.all(endpoints.map(ep => getIntrospectSchema(ep))).then(schemas => {
   });
   app.get(
     '/playground',
-    expressPlayground.default({
+    expressPlayground({
       endpoint: '/graphql',
       subscriptionsEndpoint: `ws://localhost:${PORT}/subscriptions`,
     })
