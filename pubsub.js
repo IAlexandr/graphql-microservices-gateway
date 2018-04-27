@@ -1,5 +1,4 @@
 import { RedisPubSub } from 'graphql-redis-subscriptions';
-import Redis from 'ioredis';
 
 const options = {
   port: 32768,
@@ -8,22 +7,19 @@ const options = {
   },
   showFriendlyErrorStack: process.env.NODE_ENV !== 'production',
 };
-const redisSubscriber = new Redis(options);
-const redisPublisher = new Redis(options);
 
 const connceted = () => {
-  console.log('Redis connection port', options.port);
+  console.log('Redis connected. Connection port', options.port);
 };
 const error = err => {
-  console.log('Redis connection error', err.message);
+  console.log('Redis connection error');
 };
-redisSubscriber.on('connect', connceted);
-redisSubscriber.on('error', error);
-redisPublisher.on('error', () => {});
 
 const pubsub = new RedisPubSub({
-  publisher: redisPublisher,
-  subscriber: redisSubscriber,
+  connection: options,
 });
+pubsub.redisSubscriber.on('connect', connceted);
+pubsub.redisSubscriber.on('error', error);
+pubsub.redisPublisher.on('error', error);
 
 export default pubsub;

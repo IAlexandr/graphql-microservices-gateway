@@ -1,4 +1,4 @@
-const pubsub = require('./pubsub');
+import { pubsub } from './pubsub';
 const { makeExecutableSchema } = require('graphql-tools');
 const data = [
   { id: '1', name: 'СуперАдминистраторы' },
